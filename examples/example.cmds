@@ -1,0 +1,2 @@
+python entanglement_analysis_v1.4.py single_pdb_anal_inpfiles/single_pdb_anal.cntrl 6u32 0 0 0 4 nan
+python entanglement_analysis_v1.4.py traj_anal_inpfiles/traj_anal.cntrl dimer 0 10 1 4 traj_anal_inpfiles/cg_dimer_short.dcd
