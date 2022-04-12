@@ -56,7 +56,7 @@ The set of native contacts that have an entanglement present was clustered with 
 - any points that are greater than eps away from any core sample are considered noise and given a cluster label of -1  
 - all other clusters are labeled starting from 0  
   
-## Basics of automation of DBSCAN  
+## Basics of automating DBSCAN  
 - there are two metrics the user supplies the algorithm  
     1. eps: the distance threshold between two points to determine if they are in the same neighborhood.  
     2. min_samples: the number of samples in the neighborhood of a point for it to be considered a core_sample.  
