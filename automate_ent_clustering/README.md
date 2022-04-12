@@ -30,10 +30,10 @@ it contains the following columns comma separated
     - where l = the minimal number of residues between the native contact closing the loop and the crossing  
     - where Lt = the length of the thread  
 
-[4] score  
-[5] rep_nc  
-[6] rep_crossings  
-[7] rep_surr_res  
+[4] score = (clust_size + avg_ent_depth) / 2  
+[5] rep_nc: min and max of set of native contacts forming loops in the cluster. This ensures you get the largest loop encompasing all crossings in the cluster.    
+[6] rep_crossings: set of unique crossings in the cluster  
+[7] rep_surr_res: set of unique residues within 8A of crossing residues in the cluster  
 
 
 # Explination of clustering
