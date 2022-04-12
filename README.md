@@ -9,7 +9,7 @@ recommended to use a miniconda
   
 # Packages required to run this script  
   
-os, sys, numpy, time, itertools, MDAnalysis, scipy, itertools, joblib, configparser, pickle, topoly  
+os, sys, numpy, time, MDAnalysis, scipy, itertools, joblib, configparser, pickle, topoly  
   
 some of these are standard python packages and others will need to be installed. you can find how to install them by   
 googling the package name and install  

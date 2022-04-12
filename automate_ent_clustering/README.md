@@ -7,6 +7,13 @@ The clustering can be applied to a single file or multiple .pkl files in a direc
 
 NOTE: Dont cluster across multiple files unless they have the same sequence or are premapped  
 
+# Packages required to run this script  
+  
+os, sys, numpy, time, scipy, itertools, pickle, sklearn, glob  
+
+some of these are standard python packages and others will need to be installed. you can find how to install them by   
+googling the package name and install  
+
 # USAGE  
 
 python automate_ent_clustering_v4.3.py [1] [2]  
@@ -26,8 +33,8 @@ it contains the following columns comma separated
 [1] label: cluster identification label  
 [2] clust_size: # NC that have an entanglement present in cluster / total # NC in while protein with entanglement present  
 [3] avg_ent_depth: average of the distribution of depths calculated for each crossing found in the cluster. the depth is defined by the following:  
-- 1 - abs(0.5 - (l/Lt))  
-    - where l = the minimal number of residues between the native contact closing the loop and the crossing  
+- 1 - abs(0.5 - (Lc/Lt))  
+    - where Lc = the minimal number of residues between the native contact closing the loop and the crossing  
     - where Lt = the length of the thread  
 
 [4] score = (clust_size + avg_ent_depth) / 2  
@@ -35,6 +42,7 @@ it contains the following columns comma separated
 [6] rep_crossings: set of unique crossings in the cluster  
 [7] rep_surr_res: set of unique residues within 8A of crossing residues in the cluster  
 
+![](automate_ent_clustering/depth_explination.png)  
 
 # Explination of clustering  
 
