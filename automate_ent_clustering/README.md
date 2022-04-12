@@ -50,6 +50,7 @@ The set of native contacts that have an entanglement present was clustered with 
 
 ## Basics of how the algorithm works:  
 - obviously a density based algorithm that views the space as populated by areas of high and low densities of points (in this case NC pairs)  
+- we first standardize our data by removing the mean and scaling to unit variance.  
 - it finds core samples that have a minimum  number of samples surrounding it.  
 - then it creates clusters of sets of core samples that share or are them selves common neighbors  
 - any points that are greater than eps away from any core sample are considered noise and given a cluster label of -1  
