@@ -27,8 +27,9 @@ it contains the following columns comma separated
 [2] clust_size: # NC that have an entanglement present in cluster / total # NC in while protein with entanglement present  
 [3] avg_ent_depth: average of the distribution of depths calculated for each crossing found in the cluster. the depth is defined by the following:  
 - 1 - abs(0.5 - (l/Lt))  
-- where l = the minimal number of residues between the native contact closing the loop and the crossing  
-- where Lt = the length of the thread  
+    - where l = the minimal number of residues between the native contact closing the loop and the crossing  
+    - where Lt = the length of the thread  
+
 [4] score  
 [5] rep_nc  
 [6] rep_crossings  
