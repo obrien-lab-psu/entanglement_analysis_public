@@ -38,24 +38,24 @@ it contains the following columns comma separated
     - where Lt = the length of the thread  
 
 [4] score = (clust_size + avg_ent_depth) / 2  
-[5] rep_nc: min and max of set of native contacts forming loops in the cluster. This ensures you get the largest loop encompasing all crossings in the cluster.    
+[5] rep_nc: min and max of set of native contacts forming loops in the cluster.  
 [6] rep_crossings: set of unique crossings in the cluster  
 [7] rep_surr_res: set of unique residues within 8A of crossing residues in the cluster  
-
+  
 ![](depth_explination.png)  
 
 # Explination of clustering  
 
 The set of native contacts that have an entanglement present was clustered with the Desnity Based Spatial Clustering of Applications with Noise.  
 
-Basics of how the algorithm works:  
-- obviously a density based algorithm that views the space as populated by areas of high and low densities of points (in this case native contact pairs)  
-- it finds core samples that have a minimum  number of samples surrounding it (areas of high density where the user defines the density with the metrics min_samples and eps)  
+## Basics of how the algorithm works:  
+- obviously a density based algorithm that views the space as populated by areas of high and low densities of points (in this case NC pairs)  
+- it finds core samples that have a minimum  number of samples surrounding it.  
 - then it creates clusters of sets of core samples that share or are them selves common neighbors  
 - any points that are greater than eps away from any core sample are considered noise and given a cluster label of -1  
 - all other clusters are labeled starting from 0  
 
-Why is it appropriate to choose DBSCAN for the clustering of native contacts that have entanglement present?  
+## Why is it appropriate to choose DBSCAN for the clustering of native contacts that have entanglement present?  
 1. DBSCAN finds clusters of any shape   
 2. it can find outliers that may represent very weak entanglements only containing a single native contact forming the loop  
 3. it forms clusters in a more intuitive way than basic density clustering  
