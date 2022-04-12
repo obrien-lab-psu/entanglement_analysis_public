@@ -65,6 +65,7 @@ The set of native contacts that have an entanglement present was clustered with 
         - where b is the mean distance between a sample s and all other points in the next nearest cluster  
 - The mean silhouette score reaches a maximimum when the clusters are well defined in space (i.e. little over or under clustering)   
     - therefore the optimal pair of (eps, min_samples) parameters will occure when the mean silhouette score is at a maximum.   
+    - for more info about the [mean silhouette score](https://scikit-learn.org/stable/modules/clustering.html#silhouette-coefficient)  
 
 ## Why is it appropriate to choose DBSCAN for the clustering of native contacts that have entanglement present?  
 1. DBSCAN finds clusters of any shape   
