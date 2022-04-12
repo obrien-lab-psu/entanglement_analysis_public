@@ -42,7 +42,7 @@ it contains the following columns comma separated
 [6] rep_crossings: set of unique crossings in the cluster  
 [7] rep_surr_res: set of unique residues within 8A of crossing residues in the cluster  
 
-![](automate_ent_clustering/depth_explination.png)  
+![](depth_explination.png)  
 
 # Explination of clustering  
 
