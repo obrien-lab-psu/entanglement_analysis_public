@@ -54,6 +54,17 @@ The set of native contacts that have an entanglement present was clustered with 
 - then it creates clusters of sets of core samples that share or are them selves common neighbors  
 - any points that are greater than eps away from any core sample are considered noise and given a cluster label of -1  
 - all other clusters are labeled starting from 0  
+  
+## Basics of automation of DBSCAN  
+- there are two metrics the user supplies the algorithm  
+    1. eps: the distance threshold between two points to determine if they are in the same neighborhood.  
+    2. min_samples: the number of samples in the neighborhood of a point for it to be considered a core_sample.  
+- to find the optimal pair of values we iterate of each pair of (eps, min_samples) set of parameters and calculate a clustering quality score  
+    - Mean silhouette score = < ( b - a ) / max( a, b ) >s  
+        - where a is the mean distance between a sample s and all other points in the same cluster  
+        - where b is the mean distance between a sample s and all other points in the next nearest cluster  
+- The mean silhouette score reaches a maximimum when the clusters are well defined in space (i.e. little over or under clustering)   
+    - therefore the optimal pair of (eps, min_samples) parameters will occure when the mean silhouette score is at a maximum.   
 
 ## Why is it appropriate to choose DBSCAN for the clustering of native contacts that have entanglement present?  
 1. DBSCAN finds clusters of any shape   
