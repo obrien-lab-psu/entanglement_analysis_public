@@ -115,10 +115,12 @@ print(f'\n--------------------------------------------------------------')
 print('SUMMARY of custers')
 total_sample_size = data.shape[0]
 outdata = []
+clustered_outdata = {}
 for label in np.unique(labels):
     #print(f'\n\033[97mlabel: {label}')
     cidx = np.where(labels == label)[0]
     cdata = data[cidx,:]
+
 
     label_nc = []
     label_gvals = []
@@ -127,6 +129,8 @@ for label in np.unique(labels):
     for nc in cdata:
         file_idx = nc[2]
         ent_info = orig_data[file_idx][tuple(nc[0:2])]
+
+
 
         nc = np.asarray(nc[0:2])
         crossings = []
@@ -148,7 +152,7 @@ for label in np.unique(labels):
         #print(f'\n\033[97mLabel: {label}\nfile_idx: {file_idx}\n\033[91mNative Contact: {" ".join(nc)}\n\033[96mGaussLink_vals: {" ".join(gvals)}\n\033[93mCrossings: {" ".join(crossings)}\n\033[92mSurrounding Residues: {" ".join(surr_res)}')
         #print(nc_idx,nc, crossings, surr_res)
 
-
+    #summerize data
     num_nc = len(label_nc)
     frac_nc = num_nc / total_sample_size
     #total_sample_size += num_nc
@@ -179,9 +183,66 @@ for label in np.unique(labels):
     print(f'\n\033[97mLabel: {label}\n\033[91mrep_nc: {rep_nc}\nnum_nc: {num_nc}\n\033[96mrep_gval: {rep_gval}\n\033[93mcrossings: {" ".join(label_crossings)}\navg_ent_depth: {avg_ent_depth}\n\033[92msurrounding Residues: {" ".join(label_surr_res)}')
 print(total_sample_size)
 
-header = 'label, clust_size, avg_ent_depth, score, rep_nc, rep_crossings, rep_surr_res'
+#processes data for output
+header = 'stability_rank, label, clust_size, avg_ent_depth, score, rep_nc, rep_crossings, rep_surr_res'
 outdata = np.asarray(outdata)
-np.savetxt(sys.argv[2], outdata, header=header, fmt='%s',delimiter=', ')
-print(f'\n\033[97mSAVED: {sys.argv[2]}')
+
+#sort summary by score
+label_2_stability_order = {}
+for i,d in enumerate(outdata[outdata[:,3].argsort()]):
+    label_2_stability_order[int(d[0])] = i
+#print(label_2_stability_order)
+
+updated_outdata = []
+for i,d in enumerate(outdata):
+    rank = label_2_stability_order[int(outdata[i,0])]
+    label = outdata[i,0]
+    total_data = np.hstack(([rank], [label], outdata[i,1:]))
+    updated_outdata.append(total_data)
+
+#save summary outdata
+outdata = np.asarray(updated_outdata)
+outdata = outdata[outdata[:,0].argsort()]
+np.savetxt(f'{sys.argv[2]}.summary', outdata, header=header, fmt='%s',delimiter=', ')
+print(f'\n\033[97mSAVED: {sys.argv[2]}.summary')
+
+#set up output dictionary
+clustered_outdata = {}
+files = glob.glob(file_path)
+file_idx_2_filename = {i:f for i,f in enumerate(files)}
+for label in np.unique(labels):
+    rank = label_2_stability_order[label]
+    key = (rank, label)
+    clustered_outdata[key] = {}
+    for f in files:
+        clustered_outdata[key][f] = {}
+
+#populate output dictionary
+for label in np.unique(labels):
+    #print(f'\n\033[97mlabel: {label}')
+    cidx = np.where(labels == label)[0]
+    cdata = data[cidx,:]
+
+    rank = label_2_stability_order[label]
+    key = (rank, label)
+    for nc in cdata:
+        file_idx = nc[2]
+        ent_info = orig_data[file_idx][tuple(nc[0:2])]
+
+        clustered_outdata[key][file_idx_2_filename[file_idx]][tuple(nc[0:2])] = ent_info
+
+
+#clustered_outdata = {label_2_stability_order[k]:clustered_outdata[k] for k in clustered_outdata }
+
+#for k,v in clustered_outdata.items():
+#    print('\n',k)
+#    for kv, vv in v.items():
+#        print(kv, vv)
+
+
+with open(f'{sys.argv[2]}_raw_clusters.pkl', "wb") as fh:
+    pickle.dump(clustered_outdata, fh)
+
+print(f'SAVED: {sys.argv[2]}_raw_clusters.pkl')
 print('\033[97mNORMAL TERMINATION')
 

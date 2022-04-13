@@ -88,41 +88,41 @@ Files 1 and 2 are both output if analyzing a trajector. If only analysing a sing
         print(k,v)  
   
   
-    the top level of keys will be integers ranging from -1 to the number of frames analyzed minus 1. For eample if you  
-    analyzed a trajectory with 10 frames the dictionary would have a total of 11 entries with the following keys  
-  
-    -1 = reference state results  
-    0 = first frame results  
-    1 = second frame results  
-    ...  
-    9 = tenth frame results  
-  
-  
-    in each of these entires the value is another dictionary containing one entry for each native contact that was detected to have a change in entanglement  
-  
-    for the refernce state key = -1 the inner dictionary will be structured like this  
-    key = (residues invovled in native contact)  
-    value = [array containing partial linking values for the N and C termini for this native contact,  
-             array containing the N and C terminal crossings for this native contact,  
-             residues within 8A of the crossing residues]  
-  
-    so for example if the key value pair in the reference state returned this  
-    (4, 50) [array([0.        , 0.84160559]), [[], [61]], [[], [24, 25, 26, 27, 28, 29, 34, 35, 36, 37, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 62, 63]]]  
-    the native contact formed by the residues 4 and 50 has an entanglement present.  
-    the partial linking value of the N terminus is 0 indicating no entanglement  
-    the partial linking value of the C terminus is 0.84160559 indicating a entanglement is present  
-    Therefor the N terminus should not have a crossing while the C terminus should and indeed does at residue 61  
-    The residues who have alpha carbons within 8A of the crossing residues are reported last  
-  
-  
-    for the frames in the traj key >= 0 the inner dictionary will be structured like this  
-    key = (residues invovled in native contact)  
-    value = [array containing partial linking values for the N and C termini for this native contact,  
-             array containing [change type, refernce state partial linking value, frame partial linking value] for the N and C termini for this native contact,  
-             array containing the N and C terminal crossings for this native contact,  
-             residues within 8A of the crossing residues]  
-  
-            change_type = 0 if gain of entanglement and no change in chirality  
-            change_type = 1 if gain of entanglement and change in chirality  
-            change_type = 2 if loss of entanglement and no change in chirality  
-            change_type = 3 if loss of entanglement and change in chirality  
+the top level of keys will be integers ranging from -1 to the number of frames analyzed minus 1. For eample if you  
+analyzed a trajectory with 10 frames the dictionary would have a total of 11 entries with the following keys  
+
+-1 = reference state results  
+0 = first frame results  
+1 = second frame results  
+...  
+9 = tenth frame results  
+
+
+in each of these entires the value is another dictionary containing one entry for each native contact that was detected to have a change in entanglement  
+
+for the refernce state key = -1 the inner dictionary will be structured like this  
+key = (residues invovled in native contact)  
+value = [array containing partial linking values for the N and C termini for this native contact,  
+         array containing the N and C terminal crossings for this native contact,  
+         residues within 8A of the crossing residues]  
+
+so for example if the key value pair in the reference state returned this  
+(4, 50) [array([0.        , 0.84160559]), [[], [61]], [[], [24, 25, 26, 27, 28, 29, 34, 35, 36, 37, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 62, 63]]]  
+the native contact formed by the residues 4 and 50 has an entanglement present.  
+the partial linking value of the N terminus is 0 indicating no entanglement  
+the partial linking value of the C terminus is 0.84160559 indicating a entanglement is present  
+Therefor the N terminus should not have a crossing while the C terminus should and indeed does at residue 61  
+The residues who have alpha carbons within 8A of the crossing residues are reported last  
+
+
+for the frames in the traj key >= 0 the inner dictionary will be structured like this  
+key = (residues invovled in native contact)  
+value = [array containing partial linking values for the N and C termini for this native contact,  
+         array containing [change type, refernce state partial linking value, frame partial linking value] for the N and C termini for this native contact,  
+         array containing the N and C terminal crossings for this native contact,  
+         residues within 8A of the crossing residues]  
+
+change_type = 0 if gain of entanglement and no change in chirality  
+change_type = 1 if gain of entanglement and change in chirality  
+change_type = 2 if loss of entanglement and no change in chirality  
+change_type = 3 if loss of entanglement and change in chirality  

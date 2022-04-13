@@ -26,7 +26,7 @@ python automate_ent_clustering_v4.3.py [1] [2]
 python automate_ent_clustering_v4.3.py 6u32_CP4.pkl 6u32_CP4.summary  
 
 # OUTPUT
-
+## File 1  
 A summary file for each cluster resulting from the optimized DBSCAN is created at the specified output file  
 it contains the following columns comma separated  
 
@@ -43,7 +43,67 @@ it contains the following columns comma separated
 [7] rep_surr_res: set of unique residues within 8A of crossing residues in the cluster  
   
 ![](depth_explination.png)  
+  
+## File 2  
+a pickle binary file containing a single dictionary with one entry for the reference state and a single entry for each frame analyzed in the trajectory  
+    this file can be examined by launching an interactive python session and using the following commands  
+    
+    import pickle    
+    with open('./test_outfiles/entanglement_analysis_1.4/output/6u32.pkl', 'rb') as fh:  
+        data = pickle.load(fh)  
+  
+    for k,v in data.items():  
+        print(k,v)  
+  
+the top level of the dictionary has keys in the form of a tuple (rank, label)  
+where the rank is the rank of the labeled cluster stability by the score located in the summary output  
+    
+for example the following keys are orded by increasing rank   
+Keys = (rank, label)  
+(0,-1)  
+(1,3)  
+(2,1)  
+(3,0)  
+(4,4)  
+(5,2)  
+  
+in each of these entires the value is another dictionary containing one entry for each input .pkl file that was used to create the total sample space  
+  
+for example lets take the cluster (0,-1) from the above example. This cluster has the lowest stability score and a label of -1. If we pull the data from  
+6u32_CP_total_raw_clusters.pkl  
 
+    >>> import pickle
+    >>> with open('6u32_CP_total_raw_clusters.pkl', 'rb') as fh:
+    ...     data = pickle.load(fh)
+    ...
+    >>> data.keys()
+    dict_keys([(0, -1), (3, 0), (2, 1), (5, 2), (1, 3), (4, 4)])
+    >>> data[(0,-1)]
+    {'inpfiles/6u32_CP4.pkl': {(245, 268): [array([ 0.71999043, -0.02601206 ]), [[241, 238], []], [[126, 127, 139, 173, 236, 237, 239, 240, 242, 243, 244, 245, 246, 249, 262, 263, 264, 265, 266, 267, 268, 269, 271], []]]}, 'inpfiles/6u32_CP5.pkl': {(244, 267): [array([ 0.71762111, -0.03132963 ]), [[240, 237], []], [[125, 126, 138, 172, 235, 236, 238, 239, 241, 242, 243, 244, 245, 248, 261, 262, 263, 264, 265, 266, 267, 268, 270], []]]}}
+    >>> for k,v in data[(0,-1)].items():
+    ...     print(k,v)
+    ...
+    inpfiles/6u32_CP4.pkl {(245, 268): [array([ 0.71999043, -0.02601206 ]), [[241, 238], []], [[126, 127, 139, 173, 236, 237, 239, 240, 242, 243, 244, 245, 246, 249, 262, 263, 264, 265, 266, 267, 268, 269, 271], []]]}
+    inpfiles/6u32_CP5.pkl {(244, 267): [array([ 0.71762111, -0.03132963 ]), [[240, 237], []], [[125, 126, 138, 172, 235, 236, 238, 239, 241, 242, 243, 244, 245, 248, 261, 262, 263, 264, 265, 266, 267, 268, 270], []]]}
+
+there are two source files here: inpfiles/6u32_CP4.pkl inpfiles/6u32_CP5.pkl  
+and each contributed a single entanglement to this cluster. This makes sense as the -1 cluster label is reserved for noise samples that   
+dont cluster well with any core sample. The entanglement info has the following data structure  
+
+key = (residues invovled in native contact)  
+value = [array containing partial linking values for the N and C termini for this native contact,  
+         array containing the N and C terminal crossings for this native contact,  
+         residues within 8A of the crossing residues]  
+
+so for example if the key value pair in the reference state returned this  
+(245, 268): [array([ 0.71999043, -0.02601206 ]), [[241, 238], []], [[126, 127, 139, 173, 236, 237, 239, 240, 242, 243, 244, 245, 246, 249, 262, 263, 264, 265, 266, 267, 268, 269, 271], []]]  
+the native contact formed by the residues 245 268 has an entanglement present.  
+the partial linking value of the N terminus is 0.71999043 indicating a entanglement is present.  
+the partial linking value of the C terminus is -0.02601206 indicating no entanglement is present  
+Therefor the C terminus should not have a crossing while the N terminus should and indeed does at residue 238 and 241  
+The residues who have alpha carbons within 8A of the crossing residues are reported last  
+  
+  
 # Explination of clustering  
 
 The set of native contacts that have an entanglement present was clustered with the Desnity Based Spatial Clustering of Applications with Noise.  
