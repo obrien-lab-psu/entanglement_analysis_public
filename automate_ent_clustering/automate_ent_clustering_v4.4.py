@@ -156,8 +156,12 @@ for label in np.unique(labels):
     num_nc = len(label_nc)
     frac_nc = num_nc / total_sample_size
     #total_sample_size += num_nc
+    #print(label_nc)
+    diff = [np.diff(nc) for nc in label_nc]
+    rep_nc = label_nc[np.argmin(diff)]
+
     label_nc = np.unique(np.hstack(label_nc))
-    rep_nc = [min(label_nc), max(label_nc)]
+    #rep_nc = [min(label_nc), max(label_nc)]
     label_nc = label_nc.astype(str)
 
     label_gvals = np.unique(np.hstack(label_gvals))
@@ -168,20 +172,20 @@ for label in np.unique(labels):
     label_depths = []
     for crossing in label_crossings:
         if crossing < int(rep_nc[0]):
-            depth = 1 - abs(0.5 - (crossing / int(rep_nc[0])))
+            depth = 1 - abs(0.5 - (crossing / int(rep_nc[0]))) + (int(rep_nc[0])/293)
             label_depths.append(depth)
 
         elif crossing > int(rep_nc[1]):
-            depth = 1- abs(0.5 - (crossing / (293-rep_nc[1])))
+            depth = 1- abs(0.5 - (crossing / (293-rep_nc[1]))) + ((293 - int(rep_nc[1]))/293)
             label_depths.append(depth)
 
     label_crossings = label_crossings.astype(str)
     avg_ent_depth = np.mean(label_depths)
     label_surr_res = np.unique(np.hstack(label_surr_res)).astype(str)
-    outdata.append([label, frac_nc, avg_ent_depth, (frac_nc+avg_ent_depth)/2, " ".join(np.asarray(rep_nc).astype(str)), " ".join(label_crossings), " ".join(label_surr_res)])
+    outdata.append([label, frac_nc, avg_ent_depth, frac_nc+avg_ent_depth, " ".join(np.asarray(rep_nc).astype(str)), " ".join(label_crossings), " ".join(label_surr_res)])
 
-    print(f'\n\033[97mLabel: {label}\n\033[91mrep_nc: {rep_nc}\nnum_nc: {num_nc}\n\033[96mrep_gval: {rep_gval}\n\033[93mcrossings: {" ".join(label_crossings)}\navg_ent_depth: {avg_ent_depth}\n\033[92msurrounding Residues: {" ".join(label_surr_res)}')
-print(total_sample_size)
+    #print(f'\n\033[97mLabel: {label}\n\033[91mrep_nc: {rep_nc}\nnum_nc: {num_nc}\n\033[96mrep_gval: {rep_gval}\n\033[93mcrossings: {" ".join(label_crossings)}\navg_ent_depth: {avg_ent_depth}\n\033[92msurrounding Residues: {" ".join(label_surr_res)}')
+#print(total_sample_size)
 
 #processes data for output
 header = 'stability_rank, label, clust_size, avg_ent_depth, score, rep_nc, rep_crossings, rep_surr_res'
@@ -203,6 +207,11 @@ for i,d in enumerate(outdata):
 #save summary outdata
 outdata = np.asarray(updated_outdata)
 outdata = outdata[outdata[:,0].argsort()]
+
+for d in outdata:
+
+    print(f'\n\033[97mRank: {d[0]}\nScore: {d[4]}\nLabel: {d[1]}\n\033[91mrep_nc: {d[5]}\nclust_size: {d[2]}\n\033[93mcrossings: {d[6]}\navg_ent_depth: {d[3]}\n\033[92msurrounding Residues: {d[7]}')
+
 np.savetxt(f'{sys.argv[2]}.summary', outdata, header=header, fmt='%s',delimiter=', ')
 print(f'\n\033[97mSAVED: {sys.argv[2]}.summary')
 
@@ -230,14 +239,6 @@ for label in np.unique(labels):
         ent_info = orig_data[file_idx][tuple(nc[0:2])]
 
         clustered_outdata[key][file_idx_2_filename[file_idx]][tuple(nc[0:2])] = ent_info
-
-
-#clustered_outdata = {label_2_stability_order[k]:clustered_outdata[k] for k in clustered_outdata }
-
-#for k,v in clustered_outdata.items():
-#    print('\n',k)
-#    for kv, vv in v.items():
-#        print(kv, vv)
 
 
 with open(f'{sys.argv[2]}_raw_clusters.pkl', "wb") as fh:
