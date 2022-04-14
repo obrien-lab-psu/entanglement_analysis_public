@@ -54,11 +54,10 @@ def load_data(file_path):
         for i,(k,v) in enumerate(orig_data.items()):
             #print('\n',i,k,v)
             crossings = []
-            if abs(v[0][0]) >= 0.7:
+            if abs(v[0][0]) >= 0.7 and len(v[1][0]) > 0:
                 crossings.append(v[1][0])
-            if abs(v[0][1]) >= 0.7:
+            if abs(v[0][1]) >= 0.7 and len(v[1][1]) > 0:
                 crossings.append(v[1][1])
-
             if len(crossings) > 0:
                 crossings = np.hstack(crossings)
                 num_crossings = len(crossings)
