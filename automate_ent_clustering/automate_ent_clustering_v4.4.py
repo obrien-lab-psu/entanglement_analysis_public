@@ -172,11 +172,11 @@ for label in np.unique(labels):
     label_depths = []
     for crossing in label_crossings:
         if crossing < int(rep_nc[0]):
-            depth = 1 - abs(0.5 - (crossing / int(rep_nc[0]))) + (int(rep_nc[0])/293)
+            depth = 2*(0.5 - abs(0.5 - ((int(rep_nc[0])-crossing) / int(rep_nc[0])))) + (int(rep_nc[0])/293)
             label_depths.append(depth)
 
         elif crossing > int(rep_nc[1]):
-            depth = 1- abs(0.5 - (crossing / (293-rep_nc[1]))) + ((293 - int(rep_nc[1]))/293)
+            depth = 2*(0.5- abs(0.5 - ((crossing-rep_nc[1]) / (293-rep_nc[1])))) + ((293 - int(rep_nc[1]))/293)
             label_depths.append(depth)
 
     label_crossings = label_crossings.astype(str)
