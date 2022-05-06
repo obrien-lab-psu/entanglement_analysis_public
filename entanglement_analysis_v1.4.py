@@ -227,7 +227,7 @@ nproc = int(sys.argv[6])
 print(f'nproc: {nproc}')
 
 global change_threshold
-change_threshold = 0.25
+change_threshold = 0.6
 print(f'change_threshold: {change_threshold}')
 
 ref_path=default['ref_path']
@@ -416,20 +416,21 @@ def ent_cmap(cor, ref = True, restricted = True, cut_off = 9.0, bb_buffer = 3, *
 def change_anal(frame_gln_data, ref_gln_data):
     Nterm_chng_ent_dict={}
     Cterm_chng_ent_dict={}
+    G_counter = 0
 
     for nc,gvals in ref_gln_data.items():
 
         if nc in frame_gln_data:
 
             frame_gvales = frame_gln_data[nc]
-
+            change_found = 0
             for tail_idx in [0,1]:
 
                 frame_g = frame_gvales[tail_idx]
                 ref_g = gvals[tail_idx]
 
                 if abs(frame_g - ref_g) > change_threshold:
-
+                    change_found = 1
                     if abs(frame_g.round()) > abs(ref_g.round()) and frame_g.round()*ref_g.round() >= 0:
                         #print('gain no chirality shift')
                         if tail_idx == 0:
@@ -467,11 +468,15 @@ def change_anal(frame_gln_data, ref_gln_data):
 
                 else:
                     continue
+
+            if change_found == 1:
+                G_counter += 1
+
         else:
             continue
 
 
-    return Nterm_chng_ent_dict, Cterm_chng_ent_dict
+    return Nterm_chng_ent_dict, Cterm_chng_ent_dict, G_counter
 
 
 def get_crossing_residues(ent_info, coor):
@@ -503,7 +508,7 @@ if ref_path != 'nan':
     print(f'Loading: {ref_path}')
     ref = Universe(ref_path)
     ref_calphas = ref.select_atoms(f'{ref_mask}')
-    #print(ref_calphas)
+    print(ref_calphas)
 
     #get mapping for coor_idx to PDB resid
     global ref_cooridx2pdbresid
@@ -536,11 +541,12 @@ if ref_path != 'nan':
 
     #GLN analysis
     ref_cont_ent_data = gen_nc_gdict(ref_coor, ref_cmap)
-
+    #for k,v in ref_cont_ent_data.items():
+    #    if np.sum(abs(np.round(v))) > 0:
+    #        print(k,v)
 
     #get crossing residues
     ref_crossings = get_crossing_residues(ref_cont_ent_data, ref_coor)
-
 
     #mapping of data dictionaries from coordinate idx to resid
     #print(f'ref_cont_ent_data:\n')
@@ -554,6 +560,7 @@ if ref_path != 'nan':
     outdata[framenum] = {}
     #find residues within 8A of crossing
     for nc, crossings in ref_crossings.items():
+        #print(nc, crossings)
         gvals = ref_cont_ent_data[nc]
 
         ent_res = []
@@ -628,21 +635,19 @@ if in_path != 'nan':
         #GLN analysis
         frame_cont_ent_data = gen_nc_gdict(frame_coor, frame_cmap)
 
-
         #get crossing residues
         frame_crossings = get_crossing_residues(frame_cont_ent_data, frame_coor)
-
 
         #mapping of data dictionaries from coordinate idx to resid
         #print(f'frame_cont_ent_data:\n')
         frame_cont_ent_data = {(frame_cooridx2pdbresid[k[0]], frame_cooridx2pdbresid[k[1]]):v for k,v in frame_cont_ent_data.items()}
         #for k,v in frame_cont_ent_data.items():
-        #    print(k,v)
+            #print(k,v)
 
         #print(f'frame_crossings:\n')
         frame_crossings = {(frame_cooridx2pdbresid[k[0]], frame_cooridx2pdbresid[k[1]]):[[frame_cooridx2pdbresid[crossing] for crossing in tail] for tail in v] for k,v in frame_crossings.items()}
         #for k,v in frame_crossings.items():
-        #    print(k,v)
+            #print(k,v)
 
         #change in entanglement analysis
         #resulting dict(nc:[change_type, tail_idx, ref_g, frame_g])
@@ -650,15 +655,14 @@ if in_path != 'nan':
         #where change_type 2:loss not chirality shift, 3:lost and chirality shift
         #where change_type 4:pure chirality shift
         #where tail_idx 0:Nterm 1:Cterm
-        frame_Nterm_change_results, frame_Cterm_change_results = change_anal(frame_cont_ent_data, ref_cont_ent_data)
+        frame_Nterm_change_results, frame_Cterm_change_results, G = change_anal(frame_cont_ent_data, ref_cont_ent_data)
 
         #calculate number of native contacts with a change in entanglement from ref state
         change_ncs = list(frame_Nterm_change_results.keys()) + list(frame_Cterm_change_results.keys())
-        num_nc_w_chng = len(change_ncs)
-        G = num_nc_w_chng/(2*frame_cmap.sum())
+        G = G/frame_cmap.sum()
         print(f'G: {G}')
-        GQ_list.append([framenum, frametime, G, Q])
 
+        GQ_list.append([framenum, frametime, G, Q])
 
         #generate outdata
         outdata[framenum] = {}
@@ -683,7 +687,7 @@ if in_path != 'nan':
                     #else get ref crossing if chnge = 2,3,
                     if frame_Nterm_change_results[nc][0] in [0,1,4]:
                         crossings = frame_crossings[nc][0]
-                        #print(nc, frame_Nterm_change_results[nc], crossings)
+                        #print('GAIN',nc, frame_Nterm_change_results[nc], crossings)
                         if crossings:
                             ent_res = [res.resid for res in u.select_atoms(f'{traj_mask} and around 8.0 resid {" ".join([str(crossing) for crossing in crossings])}').residues]
                             crossing_data.append(crossings)
@@ -691,7 +695,7 @@ if in_path != 'nan':
 
                     elif frame_Nterm_change_results[nc][0] in [2,3]:
                         crossings = ref_crossings[nc][0]
-                        #print(nc, frame_Nterm_change_results[nc], crossings)
+                        #print('LOSS',nc, frame_Nterm_change_results[nc], crossings)
                         if crossings:
                             ent_res = [res.resid for res in ref.select_atoms(f'{ref_mask} and around 8.0 resid {" ".join([str(crossing) for crossing in crossings])}').residues]
                             crossing_data.append(crossings)
@@ -707,7 +711,7 @@ if in_path != 'nan':
                     #else get ref crossing if chnge = 2,3,
                     if frame_Cterm_change_results[nc][0] in [0,1,4]:
                         crossings = frame_crossings[nc][1]
-                        #print(nc, frame_Cterm_change_results[nc], crossings)
+                        #print('GAIN',nc, frame_Cterm_change_results[nc], crossings)
                         if crossings:
                             ent_res = [res.resid for res in u.select_atoms(f'{traj_mask} and around 8.0 resid {" ".join([str(crossing) for crossing in crossings])}').residues]
                             crossing_data.append(crossings)
@@ -715,7 +719,7 @@ if in_path != 'nan':
 
                     elif frame_Cterm_change_results[nc][0] in [2,3]:
                         crossings = ref_crossings[nc][1]
-                        #print(nc, frame_Cterm_change_results[nc], crossings)
+                        #print('LOSS',nc, frame_Cterm_change_results[nc], crossings)
                         if crossings:
                             ent_res = [res.resid for res in ref.select_atoms(f'{ref_mask} and around 8.0 resid {" ".join([str(crossing) for crossing in crossings])}').residues]
                             crossing_data.append(crossings)
