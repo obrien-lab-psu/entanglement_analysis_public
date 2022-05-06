@@ -486,8 +486,14 @@ def get_crossing_residues(ent_info, coor):
 
     crossings = lasso_type(coor, nc_list, more_info=True)
     #print(crossings)
-    #crossings = {k:[np.abs(np.asarray(v['crossingsN'], dtype=int)), np.abs(np.asarray(v['crossingsC'], dtype=int))] for k,v in crossings.items()}
-    crossings = {k:[np.abs(np.unique(np.asarray(v['beforeN'], dtype=int))), np.abs(np.unique(np.asarray(v['beforeC'], dtype=int)))] for k,v in crossings.items()}
+    for k,v in crossings.items():
+        #print(k,v, v['crossingsN'], v['crossingsC'])
+        v['crossingsN'] = [x.replace('*','') for x in v['crossingsN']]
+        v['crossingsC'] = [x.replace('*','') for x in v['crossingsC']]
+        #print(k,v, v['crossingsN'], v['crossingsC'])
+
+    #crossings = {k:[np.abs(np.unique(np.asarray(v['beforeN'], dtype=int))), np.abs(np.unique(np.asarray(v['beforeC'], dtype=int)))] for k,v in crossings.items()}
+    crossings = {k:[np.abs(np.unique(np.asarray(v['crossingsN'], dtype=int))), np.abs(np.unique(np.asarray(v['crossingsC'], dtype=int)))] for k,v in crossings.items()}
 
     return crossings
 
@@ -549,10 +555,10 @@ if ref_path != 'nan':
     ref_crossings = get_crossing_residues(ref_cont_ent_data, ref_coor)
 
     #mapping of data dictionaries from coordinate idx to resid
-    #print(f'ref_cont_ent_data:\n')
+    print(f'ref_cont_ent_data:\n')
     ref_cont_ent_data = {(ref_cooridx2pdbresid[k[0]], ref_cooridx2pdbresid[k[1]]):v for k,v in ref_cont_ent_data.items()}
 
-    #print(f'ref_crossings:\n')
+    print(f'ref_crossings:\n')
     ref_crossings = {(ref_cooridx2pdbresid[k[0]], ref_cooridx2pdbresid[k[1]]):[[ref_cooridx2pdbresid[crossing] for crossing in tail] for tail in v] for k,v in ref_crossings.items()}
 
 
@@ -613,6 +619,8 @@ if in_path != 'nan':
         frame_cmap, frame_num_contacts = ent_cmap(frame_coor)
         frame_cmap = frame_cmap*ref_cmap
 
+        Q = 0
+        G = 0
         if sec_elems_file_path != 'nan':
             Q_frame_cmap, Q_frame_num_contacts = Q_cmap(frame_coor)
             restricted_frame_cmap = Q_frame_cmap.copy()
@@ -642,12 +650,12 @@ if in_path != 'nan':
         #print(f'frame_cont_ent_data:\n')
         frame_cont_ent_data = {(frame_cooridx2pdbresid[k[0]], frame_cooridx2pdbresid[k[1]]):v for k,v in frame_cont_ent_data.items()}
         #for k,v in frame_cont_ent_data.items():
-            #print(k,v)
+        #    print(k,v)
 
         #print(f'frame_crossings:\n')
         frame_crossings = {(frame_cooridx2pdbresid[k[0]], frame_cooridx2pdbresid[k[1]]):[[frame_cooridx2pdbresid[crossing] for crossing in tail] for tail in v] for k,v in frame_crossings.items()}
         #for k,v in frame_crossings.items():
-            #print(k,v)
+        #    print(k,v)
 
         #change in entanglement analysis
         #resulting dict(nc:[change_type, tail_idx, ref_g, frame_g])
