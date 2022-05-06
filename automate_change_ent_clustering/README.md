@@ -39,7 +39,6 @@ A summary file for each class of change in entanglement present in the range of 
   
 
 it contains the following columns comma separated  
-# label, clust_size, rep_nc, rep_crossings, rep_surr_res
 [1] label: cluster identification label  
 [2] clust_size: # NC that have an entanglement present in cluster
 [3] rep_nc: native contacts forming min loop containing all crossings in the cluster.  
@@ -58,7 +57,7 @@ a pickle binary file containing a list of the raw change in entanglement data an
         print(k,v)  
   
 Example entry:  
-  [0, 1, 24, array([184, 216]), array([ 0.168, -0.782 ]), [0.09958666250148158, -0.7821259484410402], [[233]], [[69, 70, 72, 184, 185, 186, 187, 188, 189, 190, 215, 216, 217, 231, 232, 234, 235]]]  
+  [0, 1, 24, array([184, 216]), array([ 0.168, -0.782 ]), [0.09958, -0.782125], [[233]], [[69, 70, 184, 185]]]  
 
 [1] = change type as defined above  
 [2] = cluster ID  
@@ -72,7 +71,7 @@ Example entry:
   
 # Explination of clustering  
 
-The set of native contacts that have an entanglement present was clustered with the Desnity Based Spatial Clustering of Applications with Noise.  
+The set of native contacts that have a change in entanglement present in the frames specified will be clustered with the Desnity Based Spatial Clustering of Applications with Noise.  
 
 ## Basics of how the algorithm works:  
 - obviously a density based algorithm that views the space as populated by areas of high and low densities of points (in this case NC pairs)  
