@@ -40,7 +40,7 @@ A summary file for each class of change in entanglement present in the range of 
 
 it contains the following columns comma separated  
 [1] label: cluster identification label  
-[2] clust_size: # NC that have an entanglement present in cluster
+[2] clust_size: # NC that have an entanglement present in cluster  
 [3] rep_nc: native contacts forming min loop containing all crossings in the cluster.  
 [4] rep_crossings: set of unique crossings in the cluster  
 [5] rep_surr_res: set of unique residues within 8A of crossing residues in the cluster  
