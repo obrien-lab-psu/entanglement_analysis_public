@@ -16,16 +16,16 @@ googling the package name and install
 
 # USAGE  
 
-python automate_change_ent_clustering_v5.1.py [1] [2] [3] [4] 
+python automate_change_ent_clustering_v5.1.py [1] [2] [3] [4]   
 
 [1] = path to .pkl input file resulting from entanglement_analysis_v1.4.py  
 [2] = path to output file for summary statistics  
-[3] = start frame to include in clustering
-[4] = end frame to include in clustering
-
+[3] = start frame to include in clustering  
+[4] = end frame to include in clustering  
+  
 # Example command  
 
-python automate_change_ent_clustering_v5.1.py inpfiles/nbd1_msm_samples.pkl nbd1_msm_samples 0 29
+python automate_change_ent_clustering_v5.1.py inpfiles/nbd1_msm_samples.pkl nbd1_msm_samples 0 29  
 
 # OUTPUT
 ## File 1(s) 
