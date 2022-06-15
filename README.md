@@ -19,20 +19,20 @@ googling the package name and install
   
 # USAGE  
 
-python entanglement_analysis_v1.4.py [1] [2] [3] [4] [5] [6] [7] [8] [9] [10] [11]  
+python entanglement_analysis_v1.5.py [1] [2] [3] [4] [5] [6] [7] [8]
   
 [1] = path to control file (see explination below)  
 [2] = base name for output files (personal tag for the user)  
 [3] = start_frame   
 [4] = end_frame  
 [5] = frame_stride  
-[6] = num processors  
-[7] = dcd file  
+[6] = num processors 
+[7] = path to referance coordinate file
+[8] = dcd file  
   
 ### Control File contents  
 \[DEFAULT\]  
   
-ref_path = full or relative path to PDB or CRD file used for reference state (REQUIRED)  
 psf = full or relative path to protein structrue file if analysing a trajectory (can be "nan" if only analyzing single PDB for entanglement).  
 out_path = full or relative path to an output file (will be made if it doesnt exist) (REQUIRED).  
 sec_elems_file_path = full or relative path to secondary structure file if analysing a trajectory (can be "nan" if only analyzing single PDB for entanglement).  
@@ -66,10 +66,10 @@ Strand 131 133
 see examples folder for full examples with example input and output files  
   
 1. if you want to just analyze a single PDB   
-python entanglement_analysis_v1.4.py single_pdb_anal_inpfiles/single_pdb_anal.cntrl 6u32 0 0 0 4 nan  
+python entanglement_analysis_v1.5.py single_pdb_anal_inpfiles/single_pdb_anal.cntrl 6u32 0 0 0 4 nan  
   
 2. if you want to analyze a trajectory relative to a reference state  
-python entanglement_analysis_v1.4.py traj_anal_inpfiles/traj_anal.cntrl dimer 0 10 1 4 traj_anal_inpfiles/cg_dimer_short.dcd  
+python entanglement_analysis_v1.5.py traj_anal_inpfiles/traj_anal.cntrl dimer 0 10 1 4 traj_anal_inpfiles/cg_dimer_short.dcd  
   
   
 ---
@@ -130,7 +130,7 @@ change_type = 3 if loss of entanglement and change in chirality
 
 # Automated Entanglement Clustering  
 
-Uses DBSCAN to cluster the resulting .pkl file generated from entanglement_analysis_v1.4.py   
+Uses DBSCAN to cluster the resulting .pkl file generated from entanglement_analysis_v1.5.py   
 Optimizes the DBSCAN parameters through iteration and then provides summary metrics for the optimal clusters  
 
 The clustering can be applied to a single file or multiple .pkl files in a directory.  
@@ -148,7 +148,7 @@ googling the package name and install
 
 python automate_change_ent_clustering_v5.1.py [1] [2] [3] [4]   
 
-[1] = path to .pkl input file resulting from entanglement_analysis_v1.4.py  
+[1] = path to .pkl input file resulting from entanglement_analysis_v1.5.py  
 [2] = path to output file for summary statistics  
 [3] = start frame to include in clustering  
 [4] = end frame to include in clustering  
