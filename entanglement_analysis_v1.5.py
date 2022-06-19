@@ -515,6 +515,8 @@ def check_for_missing_residues(atom_selection):
     if not resids == full_length:
         missing = full_length - resids
         print(f'MISSING RESIDUES FOUND: {missing}')
+    else:
+        missing = set()
 
     return missing
 
@@ -657,7 +659,8 @@ if in_path != 'nan':
 
     #get alpha carbons atoms and then positions of them
     print(f'Loading: {psf} & {in_paths}')
-    u = Universe(psf,in_paths)
+    #u = Universe(psf,in_paths)
+    u = Universe(in_paths[0][0])
     u_calphas = u.select_atoms(f'{traj_mask}')
 
     print(u_calphas,  len(u_calphas))
