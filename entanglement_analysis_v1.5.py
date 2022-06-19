@@ -659,8 +659,8 @@ if in_path != 'nan':
 
     #get alpha carbons atoms and then positions of them
     print(f'Loading: {psf} & {in_paths}')
-    #u = Universe(psf,in_paths)
-    u = Universe(in_paths[0][0])
+    u = Universe(psf,in_paths)
+    #u = Universe(in_paths)
     u_calphas = u.select_atoms(f'{traj_mask}')
 
     print(u_calphas,  len(u_calphas))
