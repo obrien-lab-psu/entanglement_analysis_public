@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 ################################################################################################################
 script_title='entanglement_analysis'
-script_version=1.6
+script_version=1.7
 script_author='Ian Sitarik'
 script_updatelog=f"""Update log for {script_title} version {script_version}
 
@@ -237,7 +237,7 @@ nproc = int(sys.argv[6])
 print(f'nproc: {nproc}')
 
 global change_threshold
-change_threshold = 0.6
+change_threshold = 0.0
 print(f'change_threshold: {change_threshold}')
 
 ref_path= sys.argv[7]
@@ -408,7 +408,7 @@ def Q_cmap(cor, bb_buffer = 4, cmap_dist_cutoff=8.0, **kwargs):
 
     return contact_map, contact_num
 
-def ent_cmap(cor, ref = True, restricted = True, cut_off = 8.0, bb_buffer = 3, **kwargs):
+def ent_cmap(cor, ref = True, restricted = True, cut_off = 8.0, bb_buffer = 4, **kwargs):
     if print_framesummary: print(f'\nCMAP generator')
     if print_framesummary: print(f'ref: {ref}\nrestricted: {restricted}\ncut_off: {cut_off}\nbb_buffer: {bb_buffer}')
 
@@ -440,8 +440,8 @@ def change_anal(frame_gln_data, ref_gln_data):
                 ref_g = gvals[tail_idx]
 
                 if abs(frame_g - ref_g) > change_threshold:
-                    change_found = 1
                     if abs(frame_g.round()) > abs(ref_g.round()) and frame_g.round()*ref_g.round() >= 0:
+                        change_found = 1
                         #print('gain no chirality shift')
                         if tail_idx == 0:
                             Nterm_chng_ent_dict[nc] = [0, ref_g, frame_g]
@@ -449,6 +449,7 @@ def change_anal(frame_gln_data, ref_gln_data):
                             Cterm_chng_ent_dict[nc] = [0, ref_g, frame_g]
 
                     if abs(frame_g.round()) > abs(ref_g.round()) and frame_g.round()*ref_g.round() < 0:
+                        change_found = 1
                         #print('gain and chirality shift')
                         if tail_idx == 0:
                             Nterm_chng_ent_dict[nc] = [1, ref_g, frame_g]
@@ -456,6 +457,7 @@ def change_anal(frame_gln_data, ref_gln_data):
                             Cterm_chng_ent_dict[nc] = [1, ref_g, frame_g]
 
                     if abs(frame_g.round()) < abs(ref_g.round()) and frame_g.round()*ref_g.round() >= 0:
+                        change_found = 1
                         #print('loss no chirality shift')
                         if tail_idx == 0:
                             Nterm_chng_ent_dict[nc] = [2, ref_g, frame_g]
@@ -463,6 +465,7 @@ def change_anal(frame_gln_data, ref_gln_data):
                             Cterm_chng_ent_dict[nc] = [2, ref_g, frame_g]
 
                     if abs(frame_g.round()) < abs(ref_g.round()) and frame_g.round()*ref_g.round() < 0:
+                        change_found = 1
                         #print('loss and chirality shift')
                         if tail_idx == 0:
                             Nterm_chng_ent_dict[nc] = [3, ref_g, frame_g]
@@ -470,6 +473,7 @@ def change_anal(frame_gln_data, ref_gln_data):
                             Cterm_chng_ent_dict[nc] = [3, ref_g, frame_g]
 
                     if abs(frame_g.round()) == abs(ref_g.round()) and frame_g*ref_g < 0 and frame_g.round() != 0 and ref_g.round() != 0:
+                        change_found = 1
                         #print('pure chirality shift')
                         if tail_idx == 0:
                             Nterm_chng_ent_dict[nc] = [4, ref_g, frame_g]
