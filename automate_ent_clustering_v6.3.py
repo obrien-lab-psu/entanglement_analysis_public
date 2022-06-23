@@ -27,7 +27,7 @@ end = int(sys.argv[4])
 def clustering(X, eps, min_samples):
 
     ent_label_array = []
-    #X = StandardScaler().fit_transform(X)
+    X = StandardScaler().fit_transform(X)
     clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(X)
     labels = clustering.labels_
     components = clustering.components_
@@ -55,7 +55,6 @@ def load_data(file_path):
 
             orig_data = pickle.load(fh)
             total_orig_data[f_idx] = orig_data
-        change_flags = []
         for frame in range(start, end+1):
             #print(frame)
             for i,(k,v) in enumerate(orig_data[frame].items()):
@@ -66,12 +65,10 @@ def load_data(file_path):
 
                 if frame != -1:
                     if len(v[1][0]) > 0:
-                        change_flags += [v[1][0][0]]
                         changes += [v[1][0][0]]
                         crossings += v[2]
 
                     if len(v[1][1]) > 0:
-                        change_flags += [v[1][1][0]]
                         changes += [v[1][1][0]]
                         crossings += v[2]
 
@@ -94,7 +91,7 @@ def load_data(file_path):
 
                     #print(k, crossings, num_crossings, max_crossing, min_crossing, median_crossing)
                     for change in changes:
-                        samples[change] += [[k[0], k[1], min_crossing, max_crossing, frame, f_idx]]
+                        samples[change] += [[k[0], k[1], median_crossing, frame, f_idx]]
 
     if len(samples) == 0:
         print(f'No native contacts had an entanglement present, Exitting...')
@@ -118,16 +115,17 @@ for change_type in [-1,0,1,2,3,4]:
 
     print(f'\n--------------------------------------------------------------')
     print(f'OPTIMIZING DBSCAN eps and min_samples params')
-    eps_range = np.arange(1,100,1)
+    #eps_range = np.arange(3,100,1)
+    eps_range = np.arange(0.5,10,0.1)
     print(f'eps_range: {eps_range} {len(eps_range)}')
-    min_samples_range = np.arange(2,20,1)
+    min_samples_range = np.arange(5,10,1)
     print(f'min_samples_range: {min_samples_range} {len(min_samples_range)}')
 
     for eps in eps_range:
 
         for min_samples in min_samples_range:
 
-            labels, components, core_sample_indices, Qscore = clustering(data[:,2:4], eps, min_samples)
+            labels, components, core_sample_indices, Qscore = clustering(data[:,0:3], eps, min_samples)
 
             quality_est_data.append([eps, min_samples, Qscore])
 
@@ -145,9 +143,11 @@ for change_type in [-1,0,1,2,3,4]:
     print(f'optimal silhouette score eps: {opt_eps}')
     print(f'optimal silhouette score min_samples: {opt_min_samples}')
 
-    labels, components, core_sample_indices, Qscore = clustering(data[:,2:4], opt_eps, opt_min_samples)
+    labels, components, core_sample_indices, Qscore = clustering(data[:,0:3], opt_eps, opt_min_samples)
 
-
+    if opt_eps == min(eps_range):
+        print('Potential Single cluster detected')
+        print(labels, labels.shape)
     print(f'\n--------------------------------------------------------------')
     print('SUMMARY of custers')
     total_sample_size = data.shape[0]
@@ -238,6 +238,7 @@ for change_type in [-1,0,1,2,3,4]:
                 max_jscore = jscore
                 rep_nc = nc
                 rep_cross = crossing
+                rep_frame =  label_frames[sorted_idx[idx]]
 
         num_nc = len(label_nc)
         frac_nc = num_nc / total_sample_size
@@ -252,10 +253,10 @@ for change_type in [-1,0,1,2,3,4]:
         label_crossings = label_crossings.astype(str)
         label_surr_res = np.unique(np.hstack(label_surr_res)).astype(str)
         #outdata.append([label, num_nc, " ".join(np.asarray(rep_nc).astype(str)), " ".join(label_crossings), " ".join(label_surr_res)])
-        outdata.append([label, num_nc, " ".join(np.asarray(rep_nc).astype(str)), " ".join(rep_cross.astype(str)), " ".join(label_surr_res)])
+        outdata.append([label, num_nc, " ".join(np.asarray(rep_nc).astype(str)), " ".join(rep_cross.astype(str)), " ".join(label_surr_res), str(rep_frame)])
 
     #processes data for output
-    header = 'label, clust_size, rep_nc, rep_crossings, rep_surr_res'
+    header = 'label, clust_size, rep_nc, rep_crossings, rep_surr_res, rep_frame'
     outdata = np.asarray(outdata)
 
     #save summary outdata
@@ -264,7 +265,7 @@ for change_type in [-1,0,1,2,3,4]:
     outdata = outdata[outdata[:,1].astype(int).argsort()]
     for d in outdata:
 
-        print(f'\n\033[97mLabel: {d[0]}\nclust_size: {d[1]}\n\033[91mrep_nc: {d[2]}\n\033[93mcrossings: {d[3]}\n\033[92msurrounding Residues: {d[4]}')
+        print(f'\n\033[97mLabel: {d[0]}\nclust_size: {d[1]}\n\033[91mrep_nc: {d[2]}\n\033[93mcrossings: {d[3]}\n\033[92msurrounding Residues: {d[4]}\n\033[97mrep_frame: {d[5]}')
 
     np.savetxt(f'{sys.argv[2]}_{change_type}.summary', outdata, header=header, fmt='%s',delimiter=', ')
     print(f'\n\033[97mSAVED: {sys.argv[2]}_{change_type}.summary')
