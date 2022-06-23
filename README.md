@@ -26,9 +26,9 @@ python entanglement_analysis_v1.7.py [1] [2] [3] [4] [5] [6] [7] [8]
 [3] = start_frame   
 [4] = end_frame  
 [5] = frame_stride  
-[6] = num processors 
-[7] = path to referance coordinate file
-[8] = dcd file  
+[6] = num processors   
+[7] = path to referance coordinate file  
+[8] = dcd file    
   
 ### Control File contents  
 \[DEFAULT\]  
