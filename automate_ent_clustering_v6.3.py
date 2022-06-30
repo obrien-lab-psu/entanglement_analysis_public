@@ -27,7 +27,7 @@ end = int(sys.argv[4])
 def clustering(X, eps, min_samples):
 
     ent_label_array = []
-    X = StandardScaler().fit_transform(X)
+    #X = StandardScaler().fit_transform(X)
     clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(X)
     labels = clustering.labels_
     components = clustering.components_
@@ -116,9 +116,10 @@ for change_type in [-1,0,1,2,3,4]:
     print(f'\n--------------------------------------------------------------')
     print(f'OPTIMIZING DBSCAN eps and min_samples params')
     #eps_range = np.arange(3,100,1)
-    eps_range = np.arange(0.5,10,0.1)
+    eps_range = np.asarray([55])
     print(f'eps_range: {eps_range} {len(eps_range)}')
-    min_samples_range = np.arange(5,10,1)
+    #min_samples_range = np.arange(5,10,1Vy)
+    min_samples_range = np.asarray([5])
     print(f'min_samples_range: {min_samples_range} {len(min_samples_range)}')
 
     for eps in eps_range:
@@ -227,7 +228,7 @@ for change_type in [-1,0,1,2,3,4]:
         u_crossings = np.unique(np.hstack(label_crossings))
         max_jscore = 0
         for idx, nc in enumerate(label_nc[sorted_idx]):
-            crossing = np.hstack(label_crossings[sorted_idx[idx]])
+            crossing = np.unique(np.hstack(label_crossings[sorted_idx[idx]]))
             print(idx, nc, crossing)
             set1 = set(u_crossings)
             set2 = set(np.arange(min(crossing-3), max(crossing)+3))
@@ -239,6 +240,7 @@ for change_type in [-1,0,1,2,3,4]:
                 rep_nc = nc
                 rep_cross = crossing
                 rep_frame =  label_frames[sorted_idx[idx]]
+                rep_surr = label_surr_res[sorted_idx[idx]]
 
         num_nc = len(label_nc)
         frac_nc = num_nc / total_sample_size
@@ -253,7 +255,7 @@ for change_type in [-1,0,1,2,3,4]:
         label_crossings = label_crossings.astype(str)
         label_surr_res = np.unique(np.hstack(label_surr_res)).astype(str)
         #outdata.append([label, num_nc, " ".join(np.asarray(rep_nc).astype(str)), " ".join(label_crossings), " ".join(label_surr_res)])
-        outdata.append([label, num_nc, " ".join(np.asarray(rep_nc).astype(str)), " ".join(rep_cross.astype(str)), " ".join(label_surr_res), str(rep_frame)])
+        outdata.append([label, num_nc, " ".join(np.asarray(rep_nc).astype(str)), " ".join(rep_cross.astype(str)), " ".join(rep_surr.astype(str)), str(rep_frame)])
 
     #processes data for output
     header = 'label, clust_size, rep_nc, rep_crossings, rep_surr_res, rep_frame'
