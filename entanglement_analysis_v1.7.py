@@ -499,8 +499,8 @@ def get_crossing_residues(ent_info, coor):
     nc_list = [[],[]]
     crossings = {}
     for k,v in ent_info.items():
-        gn = abs(v[0].round())
-        gc = abs(v[1].round())
+        gn = abs(v[0])
+        gc = abs(v[1])
 
         if gn > 0.6:
             nc_list[0] += [k]
