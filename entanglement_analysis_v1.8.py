@@ -127,6 +127,8 @@ script_updatelog=f"""Update log for {script_title} version {script_version}
                          This should not affect the trajectory caclulations as those structure should be complete and a complete reference state should be used when analyzing them.
                          This only affects the case when you are analyzing a single structure for entanglements and not comparing to a treatment structure or trajectory.
 
+                    Date: 08.16.2022
+                    note: changed from finding surr residues using mdanalysis to manual calculation
                   """
 
 ################################################################################################################
@@ -145,8 +147,6 @@ import configparser
 import pickle
 from topoly import *
 import more_itertools as mit
-
-print('Made a new branch')
 
 ##################################################################################################################
 ### START argument parse ###
@@ -601,14 +601,14 @@ if ref_path != 'nan':
     print(f'Loading: {ref_path}')
     ref = Universe(ref_path)
     ref_calphas = ref.select_atoms(f'{ref_mask}')
-    print(ref_calphas)
-
+    print(ref_calphas, len(ref_calphas))
     #check for missing residues
     missing_residues = check_for_missing_residues(ref_calphas)
 
     #get mapping for coor_idx to PDB resid
     global ref_cooridx2pdbresid
     ref_cooridx2pdbresid = {i:res.resid for i,res in enumerate(ref_calphas.residues)}
+    ref_pdbresid2cooridx = {v: k for k, v in ref_cooridx2pdbresid.items()}
     #print(ref_cooridx2pdbresid)
 
     #get coordinate positions
@@ -657,7 +657,6 @@ if ref_path != 'nan':
     #find residues within 8A of crossing
     for nc, crossings in ref_crossings.items():
         gvals = ref_cont_ent_data[nc]
-
         if len(np.hstack(crossings)) != 0:
 
             missing_residue_near_ent_check_result = missing_residue_near_ent_check(nc, crossings, missing_residues)
@@ -669,12 +668,21 @@ if ref_path != 'nan':
                 ent_res = []
                 for tail in crossings:
                     if tail:
-                        ent_res.append([res.resid for res in ref.select_atoms(f'{ref_mask} and around 8.0 resid {" ".join([str(crossing) for crossing in tail])}').residues])
+                        tail_cooridx = [ref_pdbresid2cooridx[crossing] for crossing in tail]
+                        distance_map=squareform(pdist(ref_coor,'euclidean'))
+                        distance_map = np.where(distance_map < 8.0, 1, 0)[tail_cooridx, :]
+                        surr = list(np.where(distance_map == 1)[1])
+                        surr = [ref_cooridx2pdbresid[s] for s in surr]
+
+                        #print(surr)
+                        #print([res.resid for res in ref.select_atoms(f'{ref_mask} and around 8.0 resid {" ".join([str(crossing) for crossing in tail])}').residues])
+                        ent_res.append(surr)
+
+
                     else:
                         ent_res.append([])
 
                 outdata[framenum][nc] = [gvals, crossings, ent_res]
-
 ### END loading of analysis universe ###
 
 ### START analysis of universe ###
@@ -707,6 +715,7 @@ if in_path != 'nan':
         #get mapping for coor_idx to PDB resid
         global frame_cooridx2pdbresid
         frame_cooridx2pdbresid = {i:res.resid for i,res in enumerate(u_calphas.residues)}
+        frame_pdbresid2cooridx = {v: k for k, v in frame_cooridx2pdbresid.items()}
         #print(frame_cooridx2pdbresid)
 
         frame_coor = u_calphas.positions
@@ -794,17 +803,27 @@ if in_path != 'nan':
                         crossings = frame_crossings[nc][0]
                         #print('GAIN',nc, frame_Nterm_change_results[nc], crossings)
                         if crossings:
-                            ent_res = [res.resid for res in u.select_atoms(f'{traj_mask} and around 8.0 resid {" ".join([str(crossing) for crossing in crossings])}').residues]
+                            tail_cooridx = [frame_pdbresid2cooridx[crossing] for crossing in crossings]
+                            distance_map=squareform(pdist(frame_coor,'euclidean'))
+                            distance_map = np.where(distance_map < 8.0, 1, 0)[tail_cooridx, :]
+                            surr = list(np.where(distance_map == 1)[1])
+                            surr = [frame_cooridx2pdbresid[s] for s in surr]
+
                             crossing_data.append(crossings)
-                            ent_data.append(ent_res)
+                            ent_data.append(surr)
 
                     elif frame_Nterm_change_results[nc][0] in [2,3]:
                         crossings = ref_crossings[nc][0]
                         #print('LOSS',nc, frame_Nterm_change_results[nc], crossings)
                         if crossings:
-                            ent_res = [res.resid for res in ref.select_atoms(f'{ref_mask} and around 8.0 resid {" ".join([str(crossing) for crossing in crossings])}').residues]
+                            tail_cooridx = [frame_pdbresid2cooridx[crossing] for crossing in crossings]
+                            distance_map=squareform(pdist(frame_coor,'euclidean'))
+                            distance_map = np.where(distance_map < 8.0, 1, 0)[tail_cooridx, :]
+                            surr = list(np.where(distance_map == 1)[1])
+                            surr = [frame_cooridx2pdbresid[s] for s in surr]
+
                             crossing_data.append(crossings)
-                            ent_data.append(ent_res)
+                            ent_data.append(surr)
 
                 else:
                     chng_data.append([])
@@ -818,17 +837,27 @@ if in_path != 'nan':
                         crossings = frame_crossings[nc][1]
                         #print('GAIN',nc, frame_Cterm_change_results[nc], crossings)
                         if crossings:
-                            ent_res = [res.resid for res in u.select_atoms(f'{traj_mask} and around 8.0 resid {" ".join([str(crossing) for crossing in crossings])}').residues]
+                            tail_cooridx = [frame_pdbresid2cooridx[crossing] for crossing in crossings]
+                            distance_map=squareform(pdist(frame_coor,'euclidean'))
+                            distance_map = np.where(distance_map < 8.0, 1, 0)[tail_cooridx, :]
+                            surr = list(np.where(distance_map == 1)[1])
+                            surr = [frame_cooridx2pdbresid[s] for s in surr]
+
                             crossing_data.append(crossings)
-                            ent_data.append(ent_res)
+                            ent_data.append(surr)
 
                     elif frame_Cterm_change_results[nc][0] in [2,3]:
                         crossings = ref_crossings[nc][1]
                         #print('LOSS',nc, frame_Cterm_change_results[nc], crossings)
                         if crossings:
-                            ent_res = [res.resid for res in ref.select_atoms(f'{ref_mask} and around 8.0 resid {" ".join([str(crossing) for crossing in crossings])}').residues]
+                            tail_cooridx = [frame_pdbresid2cooridx[crossing] for crossing in crossings]
+                            distance_map=squareform(pdist(frame_coor,'euclidean'))
+                            distance_map = np.where(distance_map < 8.0, 1, 0)[tail_cooridx, :]
+                            surr = list(np.where(distance_map == 1)[1])
+                            surr = [frame_cooridx2pdbresid[s] for s in surr]
+
                             crossing_data.append(crossings)
-                            ent_data.append(ent_res)
+                            ent_data.append(surr)
 
                 else:
                     chng_data.append([])

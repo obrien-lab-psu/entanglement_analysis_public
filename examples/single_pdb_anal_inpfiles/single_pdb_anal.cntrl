@@ -1,6 +1,5 @@
 [DEFAULT]
 
-ref_path = ./single_pdb_anal_inpfiles/6u32.pdb 
 psf = nan
 out_path = ./single_pdb_anal_outfiles/
 sec_elems_file_path = nan

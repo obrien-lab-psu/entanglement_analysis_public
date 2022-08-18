@@ -1,6 +1,5 @@
 [DEFAULT]
 
-ref_path = ./traj_anal_inpfiles/dimer_1yta.pdb 
 psf = ./traj_anal_inpfiles/1yta_a_ca.psf
 out_path = ./traj_anal_inpfiles/ref_aa_traj_cg_dimer_test_outfiles/
 sec_elems_file_path = ./traj_anal_inpfiles/dimer_1ytaA.secstructs 
