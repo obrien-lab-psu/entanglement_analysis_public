@@ -19,7 +19,7 @@ googling the package name and install
   
 # USAGE  
 
-python entanglement_analysis_v1.7.py [1] [2] [3] [4] [5] [6] [7] [8]
+python entanglement_analysis_v1.9.py [1] [2] [3] [4] [5] [6] [7] [8]
   
 [1] = path to control file (see explination below)  
 [2] = base name for output files (personal tag for the user)  

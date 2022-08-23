@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 ################################################################################################################
 script_title='entanglement_analysis'
-script_version=1.8
+script_version=1.9
 script_author='Ian Sitarik'
 script_updatelog=f"""Update log for {script_title} version {script_version}
 
@@ -129,6 +129,9 @@ script_updatelog=f"""Update log for {script_title} version {script_version}
 
                     Date: 08.16.2022
                     note: changed from finding surr residues using mdanalysis to manual calculation
+
+                    Date: 08.19.2022
+                    note: fixed error in fraction of native contact analysis that did not include 1.2 cutoff for thermal flux
                   """
 
 ################################################################################################################
@@ -392,23 +395,6 @@ def sub_lists(thread, loop):
     else:
         return 0, 0, 0, 0
 
-def Q_cmap(cor, bb_buffer = 4, cmap_dist_cutoff=8.0, **kwargs):
-    if print_framesummary: print(f'\nCMAP generator')
-    if print_framesummary: print(f'cmap_dist_cutoff: {cmap_dist_cutoff}\nbb_buffer: {bb_buffer}')
-
-    distance_map=squareform(pdist(cor,'euclidean'))
-    #distance_map=np.triu(distance_map,k=bb_buffer)
-
-    #contact_map = np.where((distance_map <= cmap_dist_cutoff) & (distance_map > 0), 1, 0)
-    contact_map = np.zeros((distance_map.shape))
-    contact_map[distance_map < cmap_dist_cutoff] = 1
-    contact_map=np.triu(contact_map,k=bb_buffer)
-
-    contact_num=contact_map.sum()
-
-    if print_framesummary: print(f'Total number of contacts in is {contact_num}')
-
-    return contact_map, contact_num
 
 def ent_cmap(cor, ref = True, restricted = True, cut_off = 8.0, bb_buffer = 4, **kwargs):
     if print_framesummary: print(f'\nCMAP generator')
@@ -620,8 +606,12 @@ if ref_path != 'nan':
     ref_cmap, ref_num_contacts = ent_cmap(ref_coor)
 
     if sec_elems_file_path != 'nan':
-        Q_ref_cmap, Q_ref_num_contacts = Q_cmap(ref_coor)
-        restricted_ref_cmap = Q_ref_cmap.copy()
+        ref_distance_map=squareform(pdist(ref_coor,'euclidean'))
+        ref_contact_map = np.zeros((ref_distance_map.shape))
+        ref_contact_map[ref_distance_map < 8.0] = 1
+        ref_contact_map=np.triu(ref_contact_map,k=4)
+
+        restricted_ref_cmap = ref_contact_map.copy()
 
         sec_residues = []
         for elems in sec_elems:
@@ -728,8 +718,11 @@ if in_path != 'nan':
         Q = 0
         G = 0
         if sec_elems_file_path != 'nan':
-            Q_frame_cmap, Q_frame_num_contacts = Q_cmap(frame_coor)
-            restricted_frame_cmap = Q_frame_cmap.copy()
+            frame_distance_map=squareform(pdist(frame_coor,'euclidean'))
+            frame_contact_map = np.zeros((frame_distance_map.shape))
+            frame_contact_map[frame_distance_map < ref_distance_map*1.2] = 1
+            frame_contact_map=np.triu(frame_contact_map,k=4)
+            restricted_frame_cmap = frame_contact_map.copy()
 
             sec_residues = []
             for elems in sec_elems:
@@ -744,7 +737,6 @@ if in_path != 'nan':
             #print(f'restricted_frame_num_contacts: {restricted_frame_num_contacts}')
             Q = restricted_frame_num_contacts/restricted_ref_num_contacts
             print(f'Q: {Q}')
-
 
         #GLN analysis
         frame_cont_ent_data = gen_nc_gdict(frame_coor, frame_cmap)
